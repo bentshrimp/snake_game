@@ -43,15 +43,17 @@ void Snake::print() {
     }
 }
 
-void Snake::move() {
+bool Snake::move() {
     usleep(500000);
     pair<int, int> head = body.front();
     pair<int, int> tail = body.back();
     mvaddch(tail.first, tail.second, ' ');
     body.pop_back();
     body.push_front(make_pair(head.first + dir.first, head.second + dir.second));
-    if (head.first > map.getHeight() || head.first == 0 || head.second > map.getWidth() || head.second == 0){
-        endwin();
+    if (head.first > map.getHeight() || head.first == 1 || head.second > map.getWidth() || head.second == 1){
+        return true;
+    } else {
+        return false;
     }
 }
 

@@ -20,6 +20,8 @@ Map::Map(string m) {
         }
         file.close(); // 열었떤 파일을 닫는다.
     }
+    height = str.size();
+    width = str[0].size();
 }
 
 void Map::print() {

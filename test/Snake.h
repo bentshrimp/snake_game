@@ -13,7 +13,6 @@
 using namespace std;
 
 class Snake {
-    bool false;
     Map map;
     deque <pair<int, int>> body;
     const pair<int, int> up = make_pair(-1, 0);
@@ -26,7 +25,7 @@ public:
 
     void print();
 
-    void move();
+    bool move();
 
     void inputKey();
 };

@@ -15,9 +15,11 @@ int main(){
     Snake snake = Snake(map);
     while(1){
         snake.print();
-        snake.inputKey();
-        snake.move();
         refresh();
+        snake.inputKey();
+        if (snake.move()){
+            break;
+        }
     }
     endwin();
     return 0;
