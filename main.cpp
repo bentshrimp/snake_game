@@ -24,6 +24,8 @@ int main() {
             if (!NewSnake.Play_Game()) {
                 break;
             }
+        } else {
+            break;
         }
     }
     printw("Clear!");
@@ -51,7 +53,7 @@ int User_Input() {
 // print start menu
 int Ready(int n) {
     ClearCentre(2.5, 2.5);
-    printw("stage%d Are you ready? (y/n)", n);
+    printw("stage%d Are you ready? (y/n)", n+1);
     return User_Input();
 }
 

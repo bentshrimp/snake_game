@@ -109,7 +109,7 @@ void snake_game::Show_Score() {
     move(3, maxwidth + 2);
     printw("Score: %d", score);
     move(5, maxwidth + 2);
-    printw("Length: %d", snake.size());
+    printw("Length: %d", 3 + score/10);
     move(7, maxwidth + 2);
     printw("Gate usage: %d", gateScore / 2);
 }
@@ -308,7 +308,7 @@ bool snake_game::Play_Game() {
             return false;
             break;
         }
-        if (s.check(score) && l.check(snake.size()) && g.check(gateScore)) {
+        if (s.check(score) && l.check(snake.size()) && g.check(gateScore/2)) {
             move((maxheight - 2) / 2, (maxwidth - 5) / 2);
             printw("GAME CLEAR");
             return true;
