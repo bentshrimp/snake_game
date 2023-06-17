@@ -7,6 +7,7 @@
 #include <string>
 #include <ncurses.h>
 #include <cstdlib>
+#include "Mission.h"
 #include <ctime>
 
 #ifndef SNAKEGAME_H
@@ -24,12 +25,13 @@ struct snake_game_position {
 
 class snake_game {
 private:
-    vector<pair<int, int>> door;
+    vector <pair<int, int>> door;
     int score, del, gateScore;
     int maxwidth;
     int maxheight;
     char dir, part_char, edge_char, fruit_char;
     bool eat_fruits;
+    Mission s,l,g;
     snake_game_position fruit;
     vector <snake_game_position> snake;
 
@@ -40,6 +42,10 @@ private:
     void Create_Snake();
 
     void Show_Score();
+
+    void Show_Mission(Mission score, Mission len, Mission gate);
+
+    bool Check_Mission();
 
     void DrawScore();
 
@@ -56,11 +62,11 @@ private:
     bool Get_Fruit();
 
 public:
-    snake_game(string m);
+    snake_game(string m, int s, int l, int g);
 
     ~snake_game();
 
-    void Play_Game();
+    bool Play_Game();
 };
 
 #endif

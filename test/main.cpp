@@ -10,7 +10,7 @@
 int main(){
     initscr();
     keypad(stdscr, TRUE);
-    Map map = Map("map.txt");
+    Map map = Map("map1.txt");
     map.print();
     Snake snake = Snake(map);
     while(1){

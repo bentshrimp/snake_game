@@ -2,6 +2,7 @@
 // Created by user on 6/17/23.
 //
 #include "snake_game.h"
+#include "Mission.h"
 #include <string>
 #include <vector>
 #include <fstream>
@@ -19,7 +20,7 @@ snake_game_position::snake_game_position() {
     y = 0;
 }
 
-snake_game::snake_game(string m) {
+snake_game::snake_game(string m, int s, int l, int g) : s(s), l(l), g(g) {
     part_char = 'O';
     edge_char = 'X';
     fruit_char = '@';
@@ -37,6 +38,7 @@ snake_game::snake_game(string m) {
     Create_Snake();
     Appear_Fruit();
     Show_Score();
+    Show_Mission(s, l, g);
     Appear_Gate(m);
     refresh();
 }
@@ -76,7 +78,7 @@ void snake_game::Create_Window(string m) {
             char c = str[i][j];
             switch (c) {
                 case '1':
-                    c = 'X';
+                    c = edge_char;
                     break;
                 case '2':
                     c = '*';
@@ -106,10 +108,21 @@ void snake_game::Show_Score() {
     printw("SCORE BOARD");
     move(3, maxwidth + 2);
     printw("Score: %d", score);
-    move(5,maxwidth+2);
+    move(5, maxwidth + 2);
     printw("Length: %d", snake.size());
-    move(7,maxwidth+2);
-    printw("Gate usage: %d", gateScore/2);
+    move(7, maxwidth + 2);
+    printw("Gate usage: %d", gateScore / 2);
+}
+
+void snake_game::Show_Mission(Mission s, Mission l, Mission g) {
+    move(11, maxwidth + 2);
+    printw("Mission");
+    move(13, maxwidth + 2);
+    printw("Score: %d", s.score);
+    move(15, maxwidth + 2);
+    printw("Length: %d", l.score);
+    move(17, maxwidth + 2);
+    printw("Gate: %d", g.score);
 }
 
 
@@ -139,7 +152,7 @@ bool snake_game::FatalCollision() // snake 의 충돌 여부를 검사
     // 뱀의 머리(snake[0])의 x좌표가 0이거나 maxwith-1 과 같거나, y좌표가 0이거나 maxheight-2 와 같으면 충돌이 발생한거로 판단 -> true 리턴 -> 뱀이 가장자리에 도착한거로 판단
 //    if (snake[0].x == 0 || snake[0].x == maxwidth - 1 || snake[0].y == 0 || snake[0].y == maxheight - 2)
 //        return true;
-    if (mvinch(snake[0].x, snake[0].y) == 'X') {
+    if (mvinch(snake[0].x, snake[0].y) == edge_char) {
         return true;
     }
     /*
@@ -287,17 +300,25 @@ void snake_game::Move_Snake() {
 }
 
 
-void snake_game::Play_Game() {
+bool snake_game::Play_Game() {
     while (1) {
         if (FatalCollision() && !throughGate()) {
             move((maxheight - 2) / 2, (maxwidth - 5) / 2);
             printw("GAME OVER");
+            return false;
+            break;
+        }
+        if (s.check(score) && l.check(snake.size()) && g.check(gateScore)) {
+            move((maxheight - 2) / 2, (maxwidth - 5) / 2);
+            printw("GAME CLEAR");
+            return true;
             break;
         }
         Get_Fruit();
         Move_Snake();
 
         if (dir == 'q') {
+            return false;
             break;
         }
         usleep(del);

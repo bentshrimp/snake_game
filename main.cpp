@@ -4,34 +4,42 @@
 #include "snake_game.h"
 
 int maxheight, maxwidth;
+
 void Play_Game();
-int Ready();
+
+int Ready(int n);
+
 int Play_Again();
+
 void ClearCentre();
+
 int User_Input();
 
-int main(){
-    if(Ready() == 'y')
-        do {
-            snake_game NewSnake = snake_game("map.txt");
-            NewSnake.Play_Game();
+string maps[] = {"map1.txt", "map2.txt"};
+
+int main() {
+    for (int i = 0; i < 3; i++) {
+        if (Ready(i) == 'y') {
+            snake_game NewSnake = snake_game(maps[0], 10 * (i + 1), 3 * (i + 1), i + 1);
+            if (!NewSnake.Play_Game()) {
+                break;
+            }
         }
-        while(Play_Again() == 'y');
+    }
+    printw("Clear!");
     return 0;
 }
 
-void ClearCentre(float x, float y)
-{
+void ClearCentre(float x, float y) {
     clear(); // clear the screen if the game is played for the 2nd time
     initscr();
     noecho();
     getmaxyx(stdscr, maxheight, maxwidth);
-    move((maxheight/y), (maxwidth/x));
+    move((maxheight / y), (maxwidth / x));
 }
 
 // receive user confirmation
-int User_Input()
-{
+int User_Input() {
     int UserInput = getch();
     refresh();
     endwin();
@@ -41,16 +49,14 @@ int User_Input()
 }
 
 // print start menu
-int Ready()
-{
+int Ready(int n) {
     ClearCentre(2.5, 2.5);
-    printw("Welcome to the Snake Game. Are you ready? (y/n)");
+    printw("stage%d Are you ready? (y/n)", n);
     return User_Input();
 }
 
 // print end of the game menu and ask user to play again
-int Play_Again()
-{
+int Play_Again() {
     ClearCentre(2.5, 2.5);
     printw("Do you want to play again? (y/n)");
     return User_Input();
