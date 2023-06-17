@@ -24,6 +24,7 @@ struct snake_game_position {
 
 class snake_game {
 private:
+    vector<pair<int, int>> door;
     int score, del;
     int maxwidth;
     int maxheight;
@@ -45,6 +46,10 @@ private:
     void Appear_Fruit();
 
     bool FatalCollision();
+
+    void Appear_Gate(string m);
+
+    bool throughGate();
 
     void Move_Snake();
 

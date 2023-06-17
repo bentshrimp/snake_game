@@ -3,6 +3,7 @@
 //
 #include "snake_game.h"
 #include <string>
+#include <vector>
 #include <fstream>
 #include <unistd.h>
 
@@ -31,11 +32,11 @@ snake_game::snake_game(string m) {
     srand(time(NULL));
 
     Init_Game_Window();
-    Appear_Fruit();
     Create_Window(m);
     Create_Snake();
+    Appear_Fruit();
     Show_Score();
-
+    Appear_Gate(m);
     refresh();
 }
 
@@ -52,8 +53,6 @@ void snake_game::Init_Game_Window() {
     noecho(); // 키 입력을 화면에 표시 x
     curs_set(0); // 커서를 보이지 않게함
     getmaxyx(stdscr, maxheight, maxwidth);
-//    maxheight = 40;
-//    maxwidth = 50;
 
     return;
 }
@@ -87,31 +86,6 @@ void snake_game::Create_Window(string m) {
             mvaddch(i, j, c);
         }
     }
-//    for (int i = 0; i < maxwidth; i++) // draws top
-//    {
-//        move(0, i);
-//        addch(edge_char);
-//    }
-//
-//    for (int i = 0; i < maxwidth; i++) // draws bottom
-//    {
-//        move(maxheight-2, i);
-//        addch(edge_char);
-//    }
-//
-//    for (int i = 0; i < maxheight-1; i++) // draws left side
-//    {
-//        move(i, 0);
-//        addch(edge_char);
-//    }
-//
-//    for (int i = 0; i < maxheight-1; i++) // draws right side
-//    {
-//        move(i, maxwidth-1);
-//        addch(edge_char);
-//    }
-//
-//    return;
 }
 
 void snake_game::Create_Snake() {
@@ -150,16 +124,18 @@ void snake_game::Appear_Fruit() {
         fruit.y = tmp_y;
         break;
     }
-    move(fruit.y, fruit.x);
-    addch(fruit_char);
+    mvaddch(fruit.y, fruit.x, fruit_char);
     refresh();
 }
 
 bool snake_game::FatalCollision() // snake 의 충돌 여부를 검사
 {
     // 뱀의 머리(snake[0])의 x좌표가 0이거나 maxwith-1 과 같거나, y좌표가 0이거나 maxheight-2 와 같으면 충돌이 발생한거로 판단 -> true 리턴 -> 뱀이 가장자리에 도착한거로 판단
-    if (snake[0].x == 0 || snake[0].x == maxwidth - 1 || snake[0].y == 0 || snake[0].y == maxheight - 2)
+//    if (snake[0].x == 0 || snake[0].x == maxwidth - 1 || snake[0].y == 0 || snake[0].y == maxheight - 2)
+//        return true;
+    if (mvinch(snake[0].x, snake[0].y) == 'X') {
         return true;
+    }
     /*
     뱀의 머리와 몸통 부분과의 충돌 검사
     뱀의 머리 (snake[0])의 위치와 현재 검사 중인 몸통 부분(snake[i])와 위치가 일치하는지 확인
@@ -168,6 +144,42 @@ bool snake_game::FatalCollision() // snake 의 충돌 여부를 검사
     for (int i = 2; i < snake.size(); i++) {
         if (snake[0].x == snake[i].x && snake[0].y == snake[i].y)
             return true;
+    }
+    return false;
+}
+
+void snake_game::Appear_Gate(string m) {
+    vector <string> str;
+    string line;
+    ifstream file(m); // example.txt 파일을 연다. 없으면 생성.
+    if (file.is_open()) {
+        while (getline(file, line)) {
+            str.push_back(line);
+        }
+        file.close(); // 열었떤 파일을 닫는다.
+    }
+
+    int gate_x;
+    int gate_y;
+
+    for (int i = 0; i < 2; i++) {
+        while (1) {
+            gate_x = rand() % maxwidth;
+            gate_y = rand() % maxheight;
+            if (str[gate_x][gate_y] == '1') {
+                door.push_back(make_pair(gate_x, gate_y));
+                mvaddch(gate_x, gate_y, 'g');
+                break;
+            }
+        }
+    }
+}
+
+bool snake_game::throughGate() {
+    for (int i = 0; i < 2; i++) {
+        if (make_pair(snake[0].y, snake[0].x) == door[i]) {
+            return true;
+        }
     }
     return false;
 }
@@ -216,25 +228,60 @@ void snake_game::Move_Snake() {
         refresh(); // 변경된 화면을 표시
         snake.pop_back(); // 벡터의 마지막 요소 == 꼬리를 제거
     }
-    // 이 코드는 현재 뱀의 이동 방향에 따라 뱀의 머리를 새로운 위치에 삽입해 뱀을 이동시키는 역활을 함
-    if (dir == 'l') {
-        snake.insert(snake.begin(), snake_game_position(snake[0].x - 1, snake[0].y));
-    } else if (dir == 'r') {
-        snake.insert(snake.begin(), snake_game_position(snake[0].x + 1, snake[0].y));
-    } else if (dir == 'u') {
-        snake.insert(snake.begin(), snake_game_position(snake[0].x, snake[0].y - 1));
-    } else if (dir == 'd') {
-        snake.insert(snake.begin(), snake_game_position(snake[0].x, snake[0].y + 1));
+
+    int exit_x;
+    int exit_y;
+
+    if (throughGate()) {
+        for (int i = 0; i < 2; i++) {
+            if (door[i] == make_pair(snake[0].y, snake[0].x)) {
+                exit_x = door[-i + 1].second;
+                exit_y = door[-i + 1].first;
+            }
+        }
+        if (exit_x == 0) {
+            dir = 'r';
+        } else if (exit_x == maxwidth - 1) {
+            dir = 'l';
+        } else if (exit_y == 0) {
+            dir = 'd';
+        } else if (exit_y == maxheight - 1) {
+            dir = 'u';
+        }
+
+        if (dir == 'l') {
+            snake.insert(snake.begin(), snake_game_position(exit_x - 1, exit_y));
+        } else if (dir == 'r') {
+            snake.insert(snake.begin(), snake_game_position(exit_x + 1, exit_y));
+        } else if (dir == 'u') {
+            snake.insert(snake.begin(), snake_game_position(exit_x, exit_y - 1));
+        } else if (dir == 'd') {
+            snake.insert(snake.begin(), snake_game_position(exit_x, exit_y + 1));
+        }
+//        move(exit_y, exit_x);
+    } else {
+        // 이 코드는 현재 뱀의 이동 방향에 따라 뱀의 머리를 새로운 위치에 삽입해 뱀을 이동시키는 역활을 함
+        if (dir == 'l') {
+            snake.insert(snake.begin(), snake_game_position(snake[0].x - 1, snake[0].y));
+        } else if (dir == 'r') {
+            snake.insert(snake.begin(), snake_game_position(snake[0].x + 1, snake[0].y));
+        } else if (dir == 'u') {
+            snake.insert(snake.begin(), snake_game_position(snake[0].x, snake[0].y - 1));
+        } else if (dir == 'd') {
+            snake.insert(snake.begin(), snake_game_position(snake[0].x, snake[0].y + 1));
+        }
     }
     move(snake[0].y, snake[0].x);
     addch(part_char);
     refresh();
+
     return;
 }
 
+
 void snake_game::Play_Game() {
     while (1) {
-        if (FatalCollision()) {
+        if (FatalCollision() && !throughGate()) {
             move((maxheight - 2) / 2, (maxwidth - 5) / 2);
             printw("GAME OVER");
             break;
