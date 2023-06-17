@@ -23,6 +23,7 @@ snake_game::snake_game(string m) {
     part_char = 'O';
     edge_char = 'X';
     fruit_char = '@';
+    gateScore = 0;
     fruit.x = 0;
     fruit.y = 0;
     score = 0;
@@ -89,7 +90,8 @@ void snake_game::Create_Window(string m) {
 }
 
 void snake_game::Create_Snake() {
-    for (int i = 0; i < 5; i++) {
+
+    for (int i = 0; i < 3; i++) {
         snake.push_back(snake_game_position(maxwidth / 2 + i, maxheight / 2));
     }
     for (int i = 0; i < snake.size(); i++) {
@@ -104,6 +106,10 @@ void snake_game::Show_Score() {
     printw("SCORE BOARD");
     move(3, maxwidth + 2);
     printw("Score: %d", score);
+    move(5,maxwidth+2);
+    printw("Length: %d", snake.size());
+    move(7,maxwidth+2);
+    printw("Gate usage: %d", gateScore/2);
 }
 
 
@@ -168,7 +174,7 @@ void snake_game::Appear_Gate(string m) {
             gate_y = rand() % maxheight;
             if (str[gate_x][gate_y] == '1') {
                 door.push_back(make_pair(gate_x, gate_y));
-                mvaddch(gate_x, gate_y, 'g');
+                mvaddch(gate_x, gate_y, ' ');
                 break;
             }
         }
@@ -178,6 +184,8 @@ void snake_game::Appear_Gate(string m) {
 bool snake_game::throughGate() {
     for (int i = 0; i < 2; i++) {
         if (make_pair(snake[0].y, snake[0].x) == door[i]) {
+            gateScore++;
+            Show_Score();
             return true;
         }
     }

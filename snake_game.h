@@ -25,7 +25,7 @@ struct snake_game_position {
 class snake_game {
 private:
     vector<pair<int, int>> door;
-    int score, del;
+    int score, del, gateScore;
     int maxwidth;
     int maxheight;
     char dir, part_char, edge_char, fruit_char;
